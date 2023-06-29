@@ -1,5 +1,5 @@
-import init, { greet } from 'snake_game';
+import init, { greet, greet_admin } from 'snake_game';
 
-init().then((wasm) => {
-  greet('Martin');
-});
+await init();
+greet('Martin');
+greet_admin();
