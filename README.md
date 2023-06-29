@@ -35,6 +35,8 @@
       )
     ```
 
+### WebAssembly as bytearray
+
 - Look at webassembly instructions inside a `.wasm` file `xxd -g1 sum.wasm`
 - You can just load these instructions in javscript
 
@@ -57,40 +59,133 @@
     }
     ```
 
-- Import to wasm
-  - You can also import functions to wasm
-  - Just define an importObject and import it
+### Import JavaScript to WASM
 
-      ```wat
-      (module
-        (import "console" "log" (func $log))
-        (import "console" "error" (func $error))
-        (func $sum (param $a i32) (param $b i32) (result i32)
-          local.get $a
-          local.get $b
-          i32.add
-        )
-        (export "sum" (func $sum))
+- You can also import functions to wasm
+- Just define an importObject and import it
+
+    ```wat
+    (module
+      (import "console" "log" (func $log))
+      (import "console" "error" (func $error))
+      (func $sum (param $a i32) (param $b i32) (result i32)
+        local.get $a
+        local.get $b
+        i32.add
       )
-      ```
+      (export "sum" (func $sum))
+    )
+    ```
 
-      ```js
-      const importObject = {
-        console: {
-          log: () => {
-            console.log('Simple console.log')
-          },
-          error: () => {
-            console.error('Simple console.error')
-          }
+    ```js
+    const importObject = {
+      console: {
+        log: () => {
+          console.log('Simple console.log')
+        },
+        error: () => {
+          console.error('Simple console.error')
         }
       }
+    }
 
-      const res = await fetch('sum.wasm');
-      const buffer = await res.arrayBuffer();
-      const wasm = await WebAssembly.instantiate(buffer, importObject);
+    const res = await fetch('sum.wasm');
+    const buffer = await res.arrayBuffer();
+    const wasm = await WebAssembly.instantiate(buffer, importObject);
+    ```
+
+### Sharing memory
+
+- Create memory in WebAssembly and export it to JS
+
+    ```bash
+    (memory $mem 1) # create some memory
+    (data (i32.const 0) "Hi") # Store the string hi to the create memory
+    (func $sum (param i32 i32) (result i32)
+      call $log
+      call $error
+      local.get 0
+      local.get 1
+      i32.add)
+    (export "mem" (memory $mem)) # export the memory with a name mem
+    (export "sum" (func $sum))
+    ```
+
+    ```js
+    //...
+    const wasmMemory = wasm.instance.exports.mem;
+    const uint8Array = new Uint8Array(wasmMemory.buffer, 0, 2); // Only fist two bytes
+    const hiText = new TextDecoder().decode(uint8Array);
+    console.log(hiText);
+    //...
+    ```
+
+- Create memory in JS and import it to WebAssembly
+
+    ```bash
+    (memory (import "js" "mem") 1) # import memory
+    (data (i32.const 0) "Hi")
+    (func $sum (param i32 i32) (result i32)
+      call $log
+      call $error
+      local.get 0
+      local.get 1
+      i32.add)
+    (export "sum" (func $sum))
+    ```
+
+    ```js
+    const memory = new WebAssembly.Memory({
+      initial: 1,
+    });
+
+    const importObject = {
+      js: {
+        mem: memory,
+      },
+      console: {
+        log: () => {
+          console.log('Just logging something');
+        },
+        error: () => {
+          console.log("I'm just an error");
+        },
+      },
+    };
+
+    const res = await fetch('sum.wasm');
+    const buffer = await res.arrayBuffer();
+    const wasm = await WebAssembly.instantiate(buffer, importObject);
+    const sumFunction = wasm.instance.exports.sum;
+
+    const uint8Array = new Uint8Array(memory.buffer, 0, 2);
+    const hiText = new TextDecoder().decode(uint8Array);
+
+    const result = sumFunction(70, 80);
+    console.log(result);
+    console.log(hiText);
+    ```
+
+### Pack Webassembly
+
+- Rust dependencies:
+  - `wasm-bindgen`
+  - Add `#[wasm_bindgen]` trait to every function
+  - `cargo install wasm-pack`
+  - Add lib to `Cargo.toml`
+
+      ```toml
+      [lib]
+      crate-type = ["cdylib"]
       ```
 
+- `wasm-pack build --target web`
+- This will create a `pkg` folder, which contains a javascript module
+- Install this module to where you want to use it by adding it to your `package.json`
+
+    ```json
+    "snake_game": "file:../pkg"
+    ```
 
 ### Resources
 
