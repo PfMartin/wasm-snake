@@ -57,6 +57,41 @@
     }
     ```
 
+- Import to wasm
+  - You can also import functions to wasm
+  - Just define an importObject and import it
+
+      ```wat
+      (module
+        (import "console" "log" (func $log))
+        (import "console" "error" (func $error))
+        (func $sum (param $a i32) (param $b i32) (result i32)
+          local.get $a
+          local.get $b
+          i32.add
+        )
+        (export "sum" (func $sum))
+      )
+      ```
+
+      ```js
+      const importObject = {
+        console: {
+          log: () => {
+            console.log('Simple console.log')
+          },
+          error: () => {
+            console.error('Simple console.error')
+          }
+        }
+      }
+
+      const res = await fetch('sum.wasm');
+      const buffer = await res.arrayBuffer();
+      const wasm = await WebAssembly.instantiate(buffer, importObject);
+      ```
+
+
 ### Resources
 
 - [Rust WebAssembly](https://rustwasm.github.io/book/)
