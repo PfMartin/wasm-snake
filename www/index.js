@@ -1,5 +1,5 @@
-import initSnakeGame, { greet } from 'snake_game';
+import init, { greet } from 'snake_game';
 
-const wasm = await initSnakeGame();
-console.log(wasm);
-greet('Martin');
+init().then((wasm) => {
+  greet('Martin');
+});
