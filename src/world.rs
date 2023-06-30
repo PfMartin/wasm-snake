@@ -19,13 +19,22 @@ pub struct World {
 #[wasm_bindgen]
 impl World {
     pub fn from(width: usize, snake_idx: usize) -> World {
+        let snake = Snake::from(snake_idx, Direction::Right, 3);
+
         let size = width * width;
-        let reward_cell = random(size);
+        let mut reward_cell;
+
+        'reward_cell_not_in_snake_validation: loop {
+            reward_cell = random(size);
+            if !snake.body.contains(&SnakeCell(reward_cell)) {
+                break 'reward_cell_not_in_snake_validation;
+            }
+        }
 
         World {
             width,
             size,
-            snake: Snake::from(snake_idx, Direction::Left, 3),
+            snake,
             next_cell: None,
             reward_cell,
         }
