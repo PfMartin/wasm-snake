@@ -2,6 +2,11 @@ use wasm_bindgen::prelude::*;
 
 use crate::snake::{Direction, Snake, SnakeCell};
 
+#[wasm_bindgen(module = "/www/utils/date.js")]
+extern "C" {
+    fn now() -> usize;
+}
+
 #[wasm_bindgen]
 pub struct World {
     width: usize,
@@ -14,12 +19,15 @@ pub struct World {
 #[wasm_bindgen]
 impl World {
     pub fn from(width: usize, snake_idx: usize) -> World {
+        let size = width * width;
+        let reward_cell = now() % size;
+
         World {
             width,
-            size: width * width,
+            size,
             snake: Snake::from(snake_idx, Direction::Left, 3),
             next_cell: None,
-            reward_cell: 10,
+            reward_cell,
         }
     }
 
