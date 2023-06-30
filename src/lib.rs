@@ -23,11 +23,11 @@ impl World {
         }
     }
 
-    pub fn from(width: usize) -> World {
+    pub fn from(width: usize, snake_idx: usize) -> World {
         World {
             width,
             size: width * width,
-            snake: Snake::from(10),
+            snake: Snake::from(snake_idx),
         }
     }
 
