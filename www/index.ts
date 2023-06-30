@@ -9,6 +9,7 @@ init().then((wasm) => {
   const snakeSpawnIndex = random(WORLD_WIDTH * WORLD_WIDTH);
   const world = World.from(WORLD_WIDTH, snakeSpawnIndex);
 
+  const points = document.getElementById('points');
   const gameStatus = document.getElementById('game-status');
   const gameControlButton = document.getElementById('game-control-btn');
   const canvas = <HTMLCanvasElement>document.getElementById('snake-canvas');
@@ -89,14 +90,11 @@ init().then((wasm) => {
     ctx.fillStyle = '#FF0000';
     ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
     ctx.stroke();
-
-    if (idx == 1000) {
-      alert('You won!');
-    }
   };
 
   const drawGameStatus = () => {
     gameStatus.textContent = world.game_status_text();
+    points.textContent = `${world.points()}`;
   };
 
   const paint = () => {

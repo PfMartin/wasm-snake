@@ -21,8 +21,9 @@ pub struct World {
     size: usize,
     snake: Snake,
     next_cell: Option<SnakeCell>,
-    reward_cell: usize,
+    reward_cell: Option<usize>,
     status: Option<GameStatus>,
+    points: usize,
 }
 
 #[wasm_bindgen]
@@ -40,11 +41,16 @@ impl World {
             next_cell: None,
             reward_cell,
             status: None,
+            points: 0,
         }
     }
 
     pub fn width(&self) -> usize {
         self.width
+    }
+
+    pub fn points(&self) -> usize {
+        self.points
     }
 
     pub fn snake_head_idx(&self) -> usize {
@@ -73,7 +79,7 @@ impl World {
         self.snake.body.as_ptr()
     }
 
-    pub fn reward_cell(&self) -> usize {
+    pub fn reward_cell(&self) -> Option<usize> {
         self.reward_cell
     }
 
@@ -115,11 +121,12 @@ impl World {
                     self.status = Some(GameStatus::Lost);
                 }
 
-                if self.reward_cell == self.snake_head_idx() {
+                if self.reward_cell == Some(self.snake_head_idx()) {
                     if self.snake_length() < self.size {
+                        self.points += 1;
                         self.reward_cell = World::generate_reward_cell(self.size, &self.snake.body)
                     } else {
-                        self.reward_cell = 1000;
+                        self.reward_cell = None;
                         self.status = Some(GameStatus::Won)
                     }
 
@@ -170,7 +177,7 @@ impl World {
         }
     }
 
-    fn generate_reward_cell(max: usize, snake_body: &Vec<SnakeCell>) -> usize {
+    fn generate_reward_cell(max: usize, snake_body: &Vec<SnakeCell>) -> Option<usize> {
         let mut reward_cell;
 
         'reward_cell_not_in_snake_validation: loop {
@@ -180,6 +187,6 @@ impl World {
             }
         }
 
-        reward_cell
+        Some(reward_cell)
     }
 }
