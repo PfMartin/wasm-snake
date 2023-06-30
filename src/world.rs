@@ -22,14 +22,7 @@ impl World {
         let snake = Snake::from(snake_idx, Direction::Right, 3);
 
         let size = width * width;
-        let mut reward_cell;
-
-        'reward_cell_not_in_snake_validation: loop {
-            reward_cell = random(size);
-            if !snake.body.contains(&SnakeCell(reward_cell)) {
-                break 'reward_cell_not_in_snake_validation;
-            }
-        }
+        let reward_cell = World::generate_reward_cell(size, &snake.body);
 
         World {
             width,
@@ -88,6 +81,12 @@ impl World {
         for i in 1..self.snake.body.len() {
             self.snake.body[i] = SnakeCell(temp[i - 1].0)
         }
+
+        if self.reward_cell == self.snake_head_idx() {
+            self.snake.body.push(SnakeCell(self.snake.body[1].0));
+
+            self.reward_cell = World::generate_reward_cell(self.size, &self.snake.body)
+        }
     }
 
     fn generate_next_snake_cell(&self, direction: &Direction) -> SnakeCell {
@@ -128,5 +127,18 @@ impl World {
                 SnakeCell(snake_idx - 1)
             }
         }
+    }
+
+    fn generate_reward_cell(max: usize, snake_body: &Vec<SnakeCell>) -> usize {
+        let mut reward_cell;
+
+        'reward_cell_not_in_snake_validation: loop {
+            reward_cell = random(max);
+            if !snake_body.contains(&SnakeCell(reward_cell)) {
+                break 'reward_cell_not_in_snake_validation;
+            }
+        }
+
+        reward_cell
     }
 }
