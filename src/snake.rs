@@ -8,6 +8,7 @@ pub enum Direction {
     Left,
 }
 
+#[derive(Clone, Copy)]
 pub struct SnakeCell(pub usize);
 
 pub struct Snake {

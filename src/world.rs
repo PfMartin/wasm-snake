@@ -7,6 +7,7 @@ pub struct World {
     width: usize,
     size: usize,
     snake: Snake,
+    next_cell: Option<SnakeCell>,
 }
 
 #[wasm_bindgen]
@@ -16,6 +17,7 @@ impl World {
             width,
             size: width * width,
             snake: Snake::from(snake_idx, Direction::Left, 3),
+            next_cell: None,
         }
     }
 
@@ -27,10 +29,6 @@ impl World {
         self.snake.body[0].0
     }
 
-    pub fn change_snake_dir(&mut self, direction: Direction) {
-        self.snake.direction = direction
-    }
-
     pub fn snake_cells(&self) -> *const SnakeCell {
         // Return a pointer to the first SnakeCell
         self.snake.body.as_ptr()
@@ -40,16 +38,40 @@ impl World {
         self.snake.body.len()
     }
 
-    pub fn step(&mut self) {
-        let next_cell = self.generate_next_snake_cell();
-        self.snake.body[0] = next_cell;
+    pub fn change_snake_dir(&mut self, direction: Direction) {
+        let next_cell = self.generate_next_snake_cell(&direction);
+
+        if self.snake.body[1].0 == next_cell.0 {
+            return;
+        }
+
+        self.next_cell = Some(next_cell);
+        self.snake.direction = direction
     }
 
-    fn generate_next_snake_cell(&self) -> SnakeCell {
+    pub fn step(&mut self) {
+        let temp = self.snake.body.clone();
+
+        match self.next_cell {
+            Some(cell) => {
+                self.snake.body[0] = cell;
+                self.next_cell = None;
+            }
+            None => {
+                self.snake.body[0] = self.generate_next_snake_cell(&self.snake.direction);
+            }
+        }
+
+        for i in 1..self.snake.body.len() {
+            self.snake.body[i] = SnakeCell(temp[i - 1].0)
+        }
+    }
+
+    fn generate_next_snake_cell(&self, direction: &Direction) -> SnakeCell {
         let snake_idx = self.snake_head_idx();
         let row = snake_idx / self.width;
 
-        match self.snake.direction {
+        match direction {
             Direction::Up => {
                 let threshold = snake_idx - (row * self.width);
                 if snake_idx == threshold {
