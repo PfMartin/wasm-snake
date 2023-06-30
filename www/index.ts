@@ -1,4 +1,4 @@
-import init, { World, Direction, InitOutput, GameStatus } from 'snake_game';
+import init, { World, Direction, InitOutput } from 'snake_game';
 import { random } from './utils/rnd';
 
 init().then((wasm) => {
@@ -9,6 +9,7 @@ init().then((wasm) => {
   const snakeSpawnIndex = random(WORLD_WIDTH * WORLD_WIDTH);
   const world = World.from(WORLD_WIDTH, snakeSpawnIndex);
 
+  const gameStatus = document.getElementById('game-status');
   const gameControlButton = document.getElementById('game-control-btn');
   const canvas = <HTMLCanvasElement>document.getElementById('snake-canvas');
   const ctx = canvas.getContext('2d');
@@ -19,9 +20,9 @@ init().then((wasm) => {
   canvas.width = worldWidth * CELL_SIZE;
 
   gameControlButton.addEventListener('click', () => {
-    const gameStatus = world.game_status();
+    const status = world.game_status();
 
-    if (gameStatus === undefined) {
+    if (status === undefined) {
       gameControlButton.textContent = 'Restart';
       world.start_game();
       play();
@@ -59,22 +60,22 @@ init().then((wasm) => {
       ctx.moveTo(0, CELL_SIZE * y);
       ctx.lineTo(worldWidth * CELL_SIZE, CELL_SIZE * y);
     }
-
-    // ctx.stroke();
   };
 
   const drawSnake = () => {
     const snakeCells = getSnakeCells(wasm, world);
 
-    snakeCells.forEach((cellIdx, i) => {
-      const col = cellIdx % worldWidth;
-      const row = Math.floor(cellIdx / worldWidth);
+    snakeCells
+      .filter((cellIdx, i) => i === 0 || cellIdx !== snakeCells[0])
+      .forEach((cellIdx, i) => {
+        const col = cellIdx % worldWidth;
+        const row = Math.floor(cellIdx / worldWidth);
 
-      ctx.fillStyle = i === 0 ? '#7878db' : '#333';
+        ctx.fillStyle = i === 0 ? '#7878db' : '#333';
 
-      ctx.beginPath();
-      ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-    });
+        ctx.beginPath();
+        ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+      });
 
     ctx.stroke();
   };
@@ -94,10 +95,15 @@ init().then((wasm) => {
     }
   };
 
+  const drawGameStatus = () => {
+    gameStatus.textContent = world.game_status_text();
+  };
+
   const paint = () => {
     drawWorld();
     drawSnake();
     drawReward();
+    drawGameStatus();
   };
 
   const play = () => {

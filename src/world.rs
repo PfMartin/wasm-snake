@@ -59,6 +59,15 @@ impl World {
         self.status
     }
 
+    pub fn game_status_text(&self) -> String {
+        match self.status {
+            Some(GameStatus::Won) => String::from("You have Won!"),
+            Some(GameStatus::Lost) => String::from("You have Lost!"),
+            Some(GameStatus::Played) => String::from("Playing"),
+            None => String::from("No Status"),
+        }
+    }
+
     pub fn snake_cells(&self) -> *const SnakeCell {
         // Return a pointer to the first SnakeCell
         self.snake.body.as_ptr()
@@ -98,8 +107,12 @@ impl World {
                     }
                 }
 
-                for i in 1..self.snake.body.len() {
+                for i in 1..self.snake_length() {
                     self.snake.body[i] = SnakeCell(temp[i - 1].0)
+                }
+
+                if self.snake.body[1..self.snake_length()].contains(&self.snake.body[0]) {
+                    self.status = Some(GameStatus::Lost);
                 }
 
                 if self.reward_cell == self.snake_head_idx() {
@@ -107,6 +120,7 @@ impl World {
                         self.reward_cell = World::generate_reward_cell(self.size, &self.snake.body)
                     } else {
                         self.reward_cell = 1000;
+                        self.status = Some(GameStatus::Won)
                     }
 
                     self.snake.body.push(SnakeCell(self.snake.body[1].0));
