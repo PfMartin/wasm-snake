@@ -63,9 +63,21 @@ init().then((wasm) => {
     ctx.stroke();
   };
 
+  const drawReward = () => {
+    const idx = world.reward_cell();
+    const col = idx % worldWidth;
+    const row = Math.floor(idx / worldWidth);
+
+    ctx.beginPath();
+    ctx.fillStyle = '#FF0000';
+    ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    ctx.stroke();
+  };
+
   const paint = () => {
     drawWorld();
     drawSnake();
+    drawReward();
   };
 
   const update = () => {
