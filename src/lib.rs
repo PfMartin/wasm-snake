@@ -25,7 +25,7 @@ impl World {
         World {
             width,
             size: width * width,
-            snake: Snake::from(snake_idx, Direction::Left),
+            snake: Snake::from(snake_idx, Direction::Left, 3),
         }
     }
 
@@ -39,6 +39,15 @@ impl World {
 
     pub fn change_snake_dir(&mut self, direction: Direction) {
         self.snake.direction = direction
+    }
+
+    pub fn snake_cells(&self) -> *const SnakeCell {
+        // Return a pointer to the first SnakeCell
+        self.snake.body.as_ptr()
+    }
+
+    pub fn snake_length(&self) -> usize {
+        self.snake.body.len()
     }
 
     pub fn update(&mut self) {
@@ -55,7 +64,7 @@ impl World {
     }
 }
 
-struct SnakeCell(usize);
+pub struct SnakeCell(usize);
 
 struct Snake {
     body: Vec<SnakeCell>,
@@ -63,10 +72,13 @@ struct Snake {
 }
 
 impl Snake {
-    fn from(spawn_index: usize, direction: Direction) -> Snake {
-        Snake {
-            body: vec![SnakeCell(spawn_index)],
-            direction,
+    fn from(spawn_index: usize, direction: Direction, size: usize) -> Snake {
+        let mut body = vec![];
+
+        for i in 0..size {
+            body.push(SnakeCell(spawn_index - i))
         }
+
+        Snake { body, direction }
     }
 }
