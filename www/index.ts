@@ -1,4 +1,4 @@
-import init, { World, Direction, InitOutput } from 'snake_game';
+import init, { World, Direction, InitOutput, GameStatus } from 'snake_game';
 import { random } from './utils/rnd';
 
 init().then((wasm) => {
@@ -105,6 +105,11 @@ init().then((wasm) => {
   };
 
   const play = () => {
+    const status = world.game_status();
+    if (status === GameStatus.Won || status === GameStatus.Lost) {
+      gameControlButton.textContent = 'Play again';
+    }
+
     setTimeout(() => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
