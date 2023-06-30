@@ -12,7 +12,7 @@ const worldWidth = world.width();
 canvas.height = worldWidth * CELL_SIZE;
 canvas.width = worldWidth * CELL_SIZE;
 
-(function drawWorld() {
+const drawWorld = () => {
   ctx.beginPath();
 
   for (let x = 0; x < worldWidth + 1; x++) {
@@ -26,9 +26,9 @@ canvas.width = worldWidth * CELL_SIZE;
   }
 
   ctx.stroke();
-})();
+};
 
-(function drawSnake() {
+const drawSnake = () => {
   const snakeIdx = world.snake_head_idx();
   const col = snakeIdx % worldWidth;
   const row = Math.floor(snakeIdx / worldWidth);
@@ -36,4 +36,23 @@ canvas.width = worldWidth * CELL_SIZE;
   ctx.beginPath();
   ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
   ctx.stroke();
-})();
+};
+
+const paint = () => {
+  drawWorld();
+  drawSnake();
+};
+
+const update = () => {
+  setTimeout(() => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    world.update();
+    paint();
+
+    requestAnimationFrame(update);
+  }, 100);
+};
+
+paint();
+update();
