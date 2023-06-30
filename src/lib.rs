@@ -39,12 +39,13 @@ impl World {
     pub fn update(&mut self) {
         let snake_idx = self.snake_head_idx();
         let row = snake_idx / self.width;
+        let col = snake_idx % self.width;
 
         self.snake.body[0].0 = match self.snake.direction {
-            Direction::Up => (snake_idx + 1) % self.size,
-            Direction::Right => (row * self.width) + (snake_idx + 1) % self.width,
-            Direction::Down => (snake_idx + 1) % self.size,
-            Direction::Left => (row * self.width) + (snake_idx - 1) % self.width,
+            Direction::Up => (row - 1) % self.width * self.width + col,
+            Direction::Right => (row * self.width) + (col + 1) % self.width,
+            Direction::Down => (row + 1) % self.width * self.width + col,
+            Direction::Left => (row * self.width) + (col - 1) % self.width,
         }
     }
 }
