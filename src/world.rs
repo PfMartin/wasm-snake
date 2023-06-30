@@ -2,9 +2,9 @@ use wasm_bindgen::prelude::*;
 
 use crate::snake::{Direction, Snake, SnakeCell};
 
-#[wasm_bindgen(module = "/www/utils/date.js")]
+#[wasm_bindgen(module = "/www/utils/rnd.js")]
 extern "C" {
-    fn now() -> usize;
+    fn random(max: usize) -> usize;
 }
 
 #[wasm_bindgen]
@@ -20,7 +20,7 @@ pub struct World {
 impl World {
     pub fn from(width: usize, snake_idx: usize) -> World {
         let size = width * width;
-        let reward_cell = now() % size;
+        let reward_cell = random(size);
 
         World {
             width,
