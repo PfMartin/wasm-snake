@@ -3,7 +3,9 @@ import { random } from './utils/rnd';
 
 init().then((wasm) => {
   const CELL_SIZE = 24;
-  const WORLD_WIDTH = 32;
+  const WORLD_WIDTH = 4;
+  const FPS = 3;
+
   const snakeSpawnIndex = random(WORLD_WIDTH * WORLD_WIDTH);
 
   const world = World.from(WORLD_WIDTH, snakeSpawnIndex);
@@ -73,6 +75,10 @@ init().then((wasm) => {
     ctx.fillStyle = '#FF0000';
     ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
     ctx.stroke();
+
+    if (idx == 1000) {
+      alert('You won!');
+    }
   };
 
   const paint = () => {
@@ -82,7 +88,6 @@ init().then((wasm) => {
   };
 
   const update = () => {
-    const fps = 10;
     setTimeout(() => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -90,7 +95,7 @@ init().then((wasm) => {
       paint();
 
       requestAnimationFrame(update);
-    }, 1000 / fps);
+    }, 1000 / FPS);
   };
 
   paint();
