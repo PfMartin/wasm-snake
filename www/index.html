@@ -5,13 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <style>
-      body {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-      }
-
       .content-wrapper {
         top: 0;
         left: 0;
@@ -19,14 +12,40 @@
         height: 100%;
         position: absolute;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
+      }
+
+      .game-panel {
+        margin-bottom: 20px;
+      }
+
+      .flex {
+        display: flex;
+      }
+
+      .label {
+        font-weight: bold;
+        margin-right: 10px;
+      }
+
+      canvas {
+        background: #f3f3f3;
       }
     </style>
   </head>
   <body>
-    <h1>Snake</h1>
     <div class="content-wrapper">
+      <div class="game-panel">
+        <div class="flex">
+          <div class="label">Status:</div>
+          <div id="game-status"></div>
+        </div>
+        <div class="flex">
+          <button id="game-control-btn">Play</button>
+        </div>
+      </div>
       <canvas id="snake-canvas"></canvas>
     </div>
 
