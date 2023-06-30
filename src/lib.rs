@@ -50,16 +50,20 @@ impl World {
         self.snake.body.len()
     }
 
-    pub fn update(&mut self) {
+    pub fn step(&mut self) {
+        let next_cell = self.generate_next_snake_cell();
+        self.snake.body[0] = next_cell;
+    }
+
+    fn generate_next_snake_cell(&self) -> SnakeCell {
         let snake_idx = self.snake_head_idx();
         let row = snake_idx / self.width;
-        let col = snake_idx % self.width;
 
-        self.snake.body[0].0 = match self.snake.direction {
-            Direction::Up => (row - 1) % self.width * self.width + col,
-            Direction::Right => (row * self.width) + (col + 1) % self.width,
-            Direction::Down => (row + 1) % self.width * self.width + col,
-            Direction::Left => (row * self.width) + (col - 1) % self.width,
+        match self.snake.direction {
+            Direction::Up => SnakeCell((snake_idx - self.width) % self.size),
+            Direction::Right => SnakeCell((row * self.width) + (snake_idx + 1) % self.width),
+            Direction::Down => SnakeCell((snake_idx + self.width) % self.size),
+            Direction::Left => SnakeCell((row * self.width) + (snake_idx - 1) % self.width),
         }
     }
 }
